@@ -1,0 +1,13 @@
+﻿@model MLPipeSysNew.Models.T_BASE
+@using System.Web.Mvc.Html;
+
+
+@using (Html.BeginForm("actionName", "ControllerName", FormMethod.Post, new { name = "EditForm", id = "EditForm", enctype = "multipart/form-data" }))
+{
+    <table>
+        <tr>
+            <td>File 1</td>
+            <td>@Html.FileUploadAndView("http://urSite/subPath/", Model.F_FILE1, "doc", "1")</td>
+        </tr>
+    </table>
+}
