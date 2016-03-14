@@ -1,4 +1,3 @@
-﻿using MLPipeSysNew.Models.Business;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,26 +14,27 @@ namespace MLPipeSysNew.Models
         static HttpFileCollectionBase httpFileCollections = null;
 
         /// <summary>
-        /// 存檔
+        /// Save File
         /// </summary>
-        /// <param name="appConfigPathName">Appsetting的名稱</param>
-        /// <param name="files">HttpFile物件</param>
+        /// <param name="appConfigPathName">Appsetting name</param>
+        /// <param name="files">HttpFile object</param>
+        /// <param name="subPath">add a subpath to ur folder</param>
+        /// <param name="fileNameBefore">add a specific name to avoid cover old file</param>
         public static void SaveFile(string appConfigPathName, HttpFileCollectionBase files, string subPath = "", string fileNameBefore = "")
         {
             httpFileCollections = files;
             string fileName = null;
-            //string dir = @"H:\WebFile$\File\Standard";
             try
             {
-                // 2015/07/31 追加修正各附件子資料夾以區別檔案
+                //Add a webconfiguration to set the url link
                 string rootPath = WebConfigurationManager.AppSettings[appConfigPathName] + (string.IsNullOrEmpty(subPath) ? "" : subPath);
-
+                //Create the directory if not exist
                 DirectoryInfo di = new DirectoryInfo(rootPath);
                 if (!di.Exists) di.Create();
                 for (int i = 0; i < files.Count; i++)
                 {
                     if (string.IsNullOrEmpty(files[i].FileName)) continue;
-                    //2015/07/31 為避免檔案名稱相同追加fileNameBefore來區別
+                    //combine the specific string to file name
                     fileName = (string.IsNullOrEmpty(fileNameBefore) ? "" : fileNameBefore + "-") + Path.GetFileName(files[i].FileName);
                     files[i].SaveAs(
                         Path.Combine(rootPath, fileName)
@@ -47,10 +47,11 @@ namespace MLPipeSysNew.Models
             }
         }
         /// <summary>
-        /// Mapping 檔案名稱到物件上
+        /// Mapping the form value to the table model
         /// </summary>
-        /// <param name="obj">要Mapping的物件</param>
-        /// <param name="files"></param>
+        /// <param name="obj">model object</param>
+        /// <param name="files">HttpFile object</param>
+        /// <param name="fileNameBefore">add a specific name to avoid cover old file</param>
         /// <returns></returns>
         public static object BindModelFileName(object obj, HttpFileCollectionBase files, string fileNameBefore = "")
         {
@@ -61,16 +62,16 @@ namespace MLPipeSysNew.Models
             {
                 foreach (string f in files)
                 {
+                    //use reflection to map the value
                     fileName = Path.GetFileName(files[f].FileName);
                     if (string.IsNullOrEmpty(fileName)) continue;
                     pi = t.GetProperty(f);
-                    // 2015/07/31 為避免檔案名稱相同追加fileNameBefore來區別
+                    
                     pi.SetValue(obj, string.IsNullOrEmpty(fileNameBefore) ? fileName : fileNameBefore + "-" + fileName, null);
                 }
             }
             catch (Exception ex)
             {
-                LogModel.addStaticErrorLog(ex);
                 Debug.Print(ex.Message);
             }
 
