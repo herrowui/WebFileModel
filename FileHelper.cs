@@ -15,7 +15,7 @@ namespace MLPipeSysNew.Helpers
 
 
 
-    public static class FileUpload
+    public static class FileUploadHelper
     {
         /// <summary>
         /// File upload Helper
